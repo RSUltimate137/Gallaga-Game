@@ -35,27 +35,48 @@ def draw():
     if game == "Lost":
         screen.fill("black")
         screen.draw.text("You Got Eaten!",(70,70),fontsize=72)
+    if game == "Won":
+        screen.fill("black")
+        screen.draw.text("You Defeated The Bugs!",(20,70),fontsize=72)
 
 def update():
     global game
-    if keyboard.a and spaceprotector.x>37:
-        spaceprotector.x=spaceprotector.x-3
-    if keyboard.d and spaceprotector.x<560:
-        spaceprotector.x=spaceprotector.x+3
-    for bullet in spacebullets:
-        bullet.y=bullet.y-5
-    for bug in spacebugs:
-        bug.y=bug.y+1
-        for bullet in spacebullets:
+
+    if game != True:
+        return
+    
+    if len(spacebugs) == 0:
+        game = "Won"
+        True
+
+    if game == "Lost":
+        return
+
+    if keyboard.a and spaceprotector.x > 37:
+        spaceprotector.x -= 3
+    if keyboard.d and spaceprotector.x < 560:
+        spaceprotector.x += 3
+
+    for bullet in spacebullets[:]:
+        bullet.y -= 5
+        if bullet.y < 0:
+            spacebullets.remove(bullet)
+
+    for bug in spacebugs[:]:
+        bug.y += 0.8
+
+        if bug.colliderect(spaceprotector):
+            game = "Lost"
+
+        for bullet in spacebullets[:]:
             if bullet.colliderect(bug):
                 spacebullets.remove(bullet)
                 spacebugs.remove(bug)
-        if bug.colliderect(spaceprotector):
-            game="Lost"
+                break
 
 
 def on_key_down(key):
-    global spacebullets
+    global spacebullets,game
     if key == keys.SPACE:
         spacebullet=Actor("spacebullet")
         spacebullet.x=spaceprotector.x
